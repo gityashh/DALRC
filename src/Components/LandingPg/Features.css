@@ -1,0 +1,43 @@
+/* Circuit board pattern */
+.pattern-circuit-board-blue-500\/10 {
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm2 2h16v16H2V2zm2 2h12v12H4V4zm2 2h8v8H6V6zm2 2h4v4H8V8zm1 1h2v2H9V9z' fill='%233b82f6' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+  }
+  
+  .pattern-circuit-board-purple-500\/10 {
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm2 2h16v16H2V2zm2 2h12v12H4V4zm2 2h8v8H6V6zm2 2h4v4H8V8zm1 1h2v2H9V9z' fill='%238b5cf6' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+  }
+  
+  .pattern-circuit-board-green-500\/10 {
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm2 2h16v16H2V2zm2 2h12v12H4V4zm2 2h8v8H6V6zm2 2h4v4H8V8zm1 1h2v2H9V9z' fill='%2310b981' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+  }
+  
+  .pattern-circuit-board-yellow-500\/10 {
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm2 2h16v16H2V2zm2 2h12v12H4V4zm2 2h8v8H6V6zm2 2h4v4H8V8zm1 1h2v2H9V9z' fill='%23eab308' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+  }
+  
+  .pattern-circuit-board-red-500\/10 {
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm2 2h16v16H2V2zm2 2h12v12H4V4zm2 2h8v8H6V6zm2 2h4v4H8V8zm1 1h2v2H9V9z' fill='%23ef4444' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+  }
+  
+  .pattern-circuit-board-indigo-500\/10 {
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm2 2h16v16H2V2zm2 2h12v12H4V4zm2 2h8v8H6V6zm2 2h4v4H8V8zm1 1h2v2H9V9z' fill='%236363f1' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+  }
+  
+  /* Smooth transitions */
+  * {
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+  
+  /* Animation for feature cards */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+  
+  .group:hover .feature-float {
+    animation: float 3s ease-in-out infinite;
+  }
