@@ -103,7 +103,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <Link 
-                  to="/privacy-policy" 
+                  to="https://www.freeprivacypolicy.com/live/573097b9-4aeb-4132-bd68-db858f8f36a7" 
                   className="text-gray-300 hover:text-white transition duration-300 flex items-center group"
                 >
                   <span className="w-2 h-2 bg-purple-500 rounded-full mr-3 group-hover:scale-150 transition-transform"></span>
@@ -112,7 +112,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link 
-                  to="/terms" 
+                  to="https://www.freeprivacypolicy.com/live/afa5a37a-004b-4de5-8bda-91576b00e4d5" 
                   className="text-gray-300 hover:text-white transition duration-300 flex items-center group"
                 >
                   <span className="w-2 h-2 bg-purple-500 rounded-full mr-3 group-hover:scale-150 transition-transform"></span>
