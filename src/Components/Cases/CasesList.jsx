@@ -1,89 +1,56 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Plus, Search, Filter } from "lucide-react"
 import CaseCard from "./CaseCard"
+import LoadingSpinner from "../common/LoadingSpinner"
+import ErrorMessage from "../common/ErrorMessage"
+import EmptyState from "../common/EmptyState"
+import { useCase } from "../../context/useCase"
 
 const CasesList = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [filteredCases, setFilteredCases] = useState([])
+  
 
-  // Sample data - in a real app, this would come from an API
-  const casesData = [
-    {
-      id: 1,
-      title: "Smith vs. Johnson Property Dispute",
-      caseNumber: "12345",
-      status: "active",
-      lastUpdated: "2 days ago",
-      participants: 4,
-      courtDate: "15 May 2023",
-      description: "Property boundary dispute between neighboring landowners in Westfield County.",
-    },
-    {
-      id: 2,
-      title: "State vs. Williams",
-      caseNumber: "67890",
-      status: "pending",
-      lastUpdated: "5 days ago",
-      participants: 6,
-      courtDate: "22 June 2023",
-      description: "Criminal case involving allegations of fraud and misrepresentation of financial documents.",
-    },
-    {
-      id: 3,
-      title: "Thompson Divorce Settlement",
-      caseNumber: "54321",
-      status: "closed",
-      lastUpdated: "1 month ago",
-      participants: 3,
-      courtDate: "Completed",
-      description: "Divorce proceedings including asset division and custody arrangements.",
-    },
-    {
-      id: 4,
-      title: "ABC Corp Intellectual Property Claim",
-      caseNumber: "98765",
-      status: "urgent",
-      lastUpdated: "1 day ago",
-      participants: 5,
-      courtDate: "10 May 2023",
-      description: "Patent infringement case between two technology companies regarding mobile payment systems.",
-    },
-    {
-      id: 5,
-      title: "Martinez Medical Malpractice",
-      caseNumber: "24680",
-      status: "active",
-      lastUpdated: "3 days ago",
-      participants: 7,
-      courtDate: "5 July 2023",
-      description: "Medical malpractice claim against Regional Hospital for alleged surgical errors.",
-    },
-    {
-      id: 6,
-      title: "Green Environmental Compliance",
-      caseNumber: "13579",
-      status: "pending",
-      lastUpdated: "1 week ago",
-      participants: 8,
-      courtDate: "Not scheduled",
-      description: "Environmental compliance case regarding industrial waste disposal regulations.",
-    },
-  ]
+  const { ownedCases, participatingCases, loading, error, fetchCases } = useCase()
 
-  // Filter cases based on search term and status filter
-  const filteredCases = casesData.filter((caseItem) => {
-    const matchesSearch =
-      caseItem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      caseItem.caseNumber.includes(searchTerm) ||
-      caseItem.description.toLowerCase().includes(searchTerm.toLowerCase())
+  // Combine and filter cases based on search term and status filter
+  useEffect(() => {
+    const allCases = [...ownedCases, ...participatingCases]
 
-    const matchesStatus = statusFilter === "all" || caseItem.status === statusFilter
+    const filtered = allCases.filter((caseItem) => {
+      const matchesSearch =
+        (caseItem.title && caseItem.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (caseItem.caseId && caseItem.caseId.includes(searchTerm)) ||
+        (caseItem.description && caseItem.description.toLowerCase().includes(searchTerm.toLowerCase()))
 
-    return matchesSearch && matchesStatus
-  })
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "closed" && caseItem.isClosed) ||
+        (statusFilter === "active" && !caseItem.isClosed)
+
+      return matchesSearch && matchesStatus
+    })
+
+    setFilteredCases(filtered)
+  }, [ownedCases, participatingCases, searchTerm, statusFilter])
+
+  // Refresh cases on mount
+  useEffect(() => {
+    fetchCases()
+  }, [fetchCases])
+
+  if (loading && !filteredCases.length) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <LoadingSpinner size="large" />
+        <p className="mt-4 text-gray-600">Loading cases...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -98,6 +65,8 @@ const CasesList = () => {
         </Link>
       </div>
 
+      {error && <ErrorMessage message={error} />}
+
       {/* Filters and Search */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="relative flex-grow">
@@ -106,7 +75,7 @@ const CasesList = () => {
           </div>
           <input
             type="text"
-            placeholder="Search cases by title, number or description..."
+            placeholder="Search cases by title, ID or description..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 pr-4 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -122,25 +91,32 @@ const CasesList = () => {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="pl-10 pr-4 py-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
           >
-            <option value="all">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="pending">Pending</option>
-            <option value="closed">Closed</option>
-            <option value="urgent">Urgent</option>
+            <option value="all">All Cases</option>
+            <option value="active">Active Cases</option>
+            <option value="closed">Closed Cases</option>
           </select>
         </div>
       </div>
 
       {/* Cases Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredCases.length > 0 ? (
-          filteredCases.map((caseItem) => <CaseCard key={caseItem.id} caseData={caseItem} />)
-        ) : (
-          <div className="col-span-full text-center py-12">
-            <p className="text-gray-500">No cases found matching your criteria.</p>
-          </div>
-        )}
-      </div>
+      {filteredCases.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCases.map((caseItem) => (
+            <CaseCard key={caseItem.caseId} caseData={caseItem} />
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          title="No cases found"
+          description={
+            searchTerm || statusFilter !== "all"
+              ? "No cases match your search criteria. Try adjusting your filters."
+              : "You don't have any cases yet. Create your first case to get started."
+          }
+          actionLink="/cases/new"
+          actionText="Create New Case"
+        />
+      )}
 
       {/* Add New Case Button (Mobile) */}
       <div className="md:hidden fixed bottom-6 right-6">

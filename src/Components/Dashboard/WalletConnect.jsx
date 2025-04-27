@@ -22,6 +22,7 @@ const WalletConnect = () => {
         });
 
         if (res.data.walletAddress) {
+          localStorage.setItem("walletAddress", res.data.walletAddress);
           setWalletAddress(res.data.walletAddress);
         }
       } catch (err) {
