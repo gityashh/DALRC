@@ -6,9 +6,13 @@ const Pwreset = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const phoneNumber = location.state?.phoneNumber;
-  const [resetCode, setResetCode] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [flashMessage, setFlashMessage] = useState(null);
+  const [formData, setFormData] = useState({
+    resetCode: '',
+    newPassword: ''
+  });
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [timer, setTimer] = useState(120);
   const [isResendVisible, setIsResendVisible] = useState(false);
 
@@ -27,85 +31,178 @@ const Pwreset = () => {
     return () => clearInterval(countdown);
   }, []);
 
-  // Handle Password Reset
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear errors when user starts typing
+    if (error) setError(null);
+  };
+
   const handleResetPassword = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    setSuccess(null);
+
     try {
       const response = await axios.post('http://localhost:3000/api/v1/user/forgot-password/reset', {
         phoneNumber,
-        resetCode,
-        newPassword,
+        resetCode: formData.resetCode,
+        newPassword: formData.newPassword
       });
-      setFlashMessage({ type: 'success', text: response.data.message });
-      navigate('/login');
+      
+      setSuccess(response.data.message);
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Failed to reset password. Please try again.';
-      setFlashMessage({ type: 'error', text: errorMessage });
+      setError(error.response?.data?.message || 'Failed to reset password. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Handle Resend OTP
   const handleResendOtp = async () => {
+    setIsLoading(true);
+    setError(null);
+    
     try {
-      const response = await axios.post('http://localhost:3000/api/v1/user/forgot-password/request-reset', {
-        phoneNumber,
+      await axios.post('http://localhost:3000/api/v1/user/forgot-password/request-reset', {
+        phoneNumber
       });
-      setFlashMessage({ type: 'success', text: 'Reset code resent successfully.' });
-      setTimer(120); // Reset timer
-      setIsResendVisible(false); // Hide resend button
+      
+      setSuccess('Reset code resent successfully.');
+      setTimer(120);
+      setIsResendVisible(false);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Failed to resend reset code. Please try again.';
-      setFlashMessage({ type: 'error', text: errorMessage });
+      setError(error.response?.data?.message || 'Failed to resend reset code. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
   return (
-    <div className='h-72 xl:w-4/12 lg:w-5/12 sm:w-7/12 w-9/12 shadow-lg shadow-zinc-400 hover:shadow-cyan-400 rounded-lg p-3 bg-blue-200'>
-      <h2 style={{ textAlign: 'center', fontSize: '2.2rem', fontWeight: 'bold' }}>Reset Password</h2>
-      {flashMessage && <div className={`flash-message ${flashMessage.type}`}>{flashMessage.text}</div>}
-      <form className='flex flex-col justify-evenly  items-center h-44' onSubmit={handleResetPassword}>
-        <label className='w-full flex justify-between items-center'>
-          Reset Code:
+    <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-gray-800 mb-2">Reset Password</h2>
+        <p className="text-gray-600">Enter your reset code and new password</p>
+      </div>
+
+      {/* Success Message */}
+      {success && (
+        <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+          <p>{success}</p>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+          <p>{error}</p>
+        </div>
+      )}
+
+      <form onSubmit={handleResetPassword} className="space-y-6">
+        <div>
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="resetCode">
+            Reset Code
+          </label>
           <input
             type="text"
-            placeholder="Enter reset code"
-            value={resetCode}
-            onChange={(e) => setResetCode(e.target.value)}
+            id="resetCode"
+            name="resetCode"
+            placeholder="Enter 6-digit code"
+            value={formData.resetCode}
+            onChange={handleChange}
             required
             maxLength="6"
-            className='w-4/6 shadow-md p-1'
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            disabled={isLoading}
           />
-        </label>
-        <label className='w-full flex justify-between items-center'>
-          New Password:
+        </div>
+
+        <div>
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="newPassword">
+            New Password
+          </label>
           <input
             type="password"
+            id="newPassword"
+            name="newPassword"
             placeholder="Enter new password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
+            value={formData.newPassword}
+            onChange={handleChange}
             required
             minLength="6"
-            className='w-4/6 shadow-md p-1'
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            disabled={isLoading}
           />
-        </label>
+          <p className="text-xs text-gray-500 mt-1">Minimum 6 characters required</p>
+        </div>
 
-        <button type="submit" className="p-[1px] relative w-44">
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-700 rounded-lg" />
-          <div className="px-2 py-1  bg-blue-500 rounded-[6px]  relative group transition duration-200 text-white hover:bg-transparent">
-            Reset Password
+        <div className="flex items-center justify-between">
+          <div className="text-sm">
+            {timer > 0 ? (
+              <p className="text-gray-600">Code expires in: {formatTime(timer)}</p>
+            ) : (
+              isResendVisible && (
+                <button
+                  type="button"
+                  onClick={handleResendOtp}
+                  className="text-blue-600 hover:text-blue-800 font-medium"
+                  disabled={isLoading}
+                >
+                  Resend Code
+                </button>
+              )
+            )}
           </div>
-        </button>
+
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 flex items-center justify-center min-w-32"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <svg
+                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Processing...
+              </>
+            ) : (
+              'Reset Password'
+            )}
+          </button>
+        </div>
       </form>
-      {timer > 0 ? (
-        <p>Time remaining: {timer} seconds</p>
-      ) : (
-        isResendVisible && <button onClick={{ handleResendOtp }} type="submit" className="p-[1px] relative w-44">
-          <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-purple-600 rounded-lg" />
-          <div className="px-2 py-1 bg-white rounded-[6px]  relative group transition duration-200 hover:bg-transparent text-slate-950 hover:text-white">
-            Resend Code
-          </div>
-        </button>
-      )}
     </div>
   );
 };

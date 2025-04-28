@@ -1,7 +1,7 @@
 import MetamaskRegister from "../Components/Auth/MetamaskRegister"
 import { Link } from "react-router-dom"
 import Navbar from "../Components/LandingPg/Navbar"
-import VerifyOtp from "../Components/Register/VerifyOtp";
+import Pwreset from "../Components/Login/Pwreset"
 
 const Register = () => {
   return (
@@ -9,7 +9,7 @@ const Register = () => {
       <Navbar />
       <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-          < VerifyOtp />
+          <Pwreset />
         </div>
       </div>
     </div>

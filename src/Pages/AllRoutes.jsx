@@ -12,6 +12,9 @@ import CaseAbout from "../Components/Cases/CaseAbout"
 import CaseMembers from "../Components/Cases/CaseMembers"
 import CaseVerify from "../Components/Cases/CaseVerify"
 import CaseLogs from "../Components/Cases/CaseLogs"
+import ResetPassword from "./ResetPassword"
+import OtpVerification from "./OtpVerification"
+import ProtectedRoutes from "../utils/ProtectedRoute"
 
 function AllRoutes() {
   return (
@@ -21,19 +24,21 @@ function AllRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ResetPassword />} />
+        <Route path="/OtpVerification" element={< OtpVerification />} />
 
         {/* Dashboard Routes */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/cases" element={<Cases />} />
-        <Route path="/cases/new" element={<NewCase />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/dashboard" element={<ProtectedRoutes><Dashboard /></ProtectedRoutes>} />
+        <Route path="/cases" element={<ProtectedRoutes><Cases /></ProtectedRoutes>} />
+        <Route path="/cases/new" element={<ProtectedRoutes><NewCase /></ProtectedRoutes>} />
+        <Route path="/profile" element={<ProtectedRoutes><Profile /></ProtectedRoutes>} />
 
         {/* Case Detail Routes */}
-        <Route path="/cases/:caseId" element={<CaseDetail />}>
-          <Route path="about" element={<CaseAbout />} />
-          <Route path="members" element={<CaseMembers />} />
-          <Route path="verify" element={<CaseVerify />} />
-          <Route path="logs" element={<CaseLogs />} />
+        <Route path="/cases/:caseId" element={<ProtectedRoutes><CaseDetail /></ProtectedRoutes>}>
+          <Route path="about" element={<ProtectedRoutes><CaseAbout /></ProtectedRoutes>} />
+          <Route path="members" element={<ProtectedRoutes><CaseMembers /></ProtectedRoutes>} />
+          <Route path="verify" element={<ProtectedRoutes><CaseVerify /></ProtectedRoutes>} />
+          <Route path="logs" element={<ProtectedRoutes><CaseLogs /></ProtectedRoutes>} />
         </Route>
       </Routes>
     </Router>
